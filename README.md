@@ -12,12 +12,6 @@ npm i -s react-tiles-dnd
 
 # Example
 
-The example below shows a list of tiles of different sizes that you can reorder as you wish.
+[Show in CodeSandbox](https://codesandbox.io/s/react-tiles-dnd-responsive-bd0ly?file=/src/App.tsx)
 
-
-<iframe src="https://codesandbox.io/embed/fast-surf-bd0ly?fontsize=14&hidenavigation=1&theme=dark&view=preview"
-     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
-     title="react-tiles-dnd-responsive"
-     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
-     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
-   ></iframe>
+![https://codesandbox.io/s/react-tiles-dnd-responsive-bd0ly?file=/src/App.tsx](docs/demo.gif)
