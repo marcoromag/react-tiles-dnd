@@ -14,4 +14,4 @@ npm i -s react-tiles-dnd
 
 [Show in CodeSandbox](https://codesandbox.io/s/react-tiles-dnd-responsive-bd0ly?file=/src/App.tsx)
 
-![https://codesandbox.io/s/react-tiles-dnd-responsive-bd0ly?file=/src/App.tsx](docs/demo.gif)
+![https://codesandbox.io/s/react-tiles-dnd-responsive-bd0ly?file=/src/App.tsx](https://raw.githubusercontent.com/marcoromag/react-tiles-dnd/main/docs/demo.gif)
