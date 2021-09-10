@@ -1,8 +1,9 @@
 {
     "name": "react-tiles-dnd",
-    "version": "0.0.0-0",
+    "version": "0.0.1",
     "author": "Marco Romagnuolo",
     "license": "MIT",
+    "repository": "marcoromag/react-tiles-dnd",
     "main": "esm/index.js",
     "module": "esm/index.js",
     "source": "src/index.ts",
