@@ -1,0 +1,91 @@
+import { TileLayout } from './TileLayout';
+
+test('add single element', () => {
+  const tile = new TileLayout(6);
+  tile.addTile({ colSpan: 1, rowSpan: 1, id: '1' });
+  expect(tile.tileData()).toEqual([
+    { colSpan: 1, rowSpan: 1, id: '1', col: 0, row: 0 },
+  ]);
+});
+
+test('add two element', () => {
+  const tile = new TileLayout(6);
+  tile.addTile({ colSpan: 1, rowSpan: 1, id: '1' });
+  tile.addTile({ colSpan: 2, rowSpan: 1, id: '1' });
+  expect(tile.tileData()).toEqual([
+    { colSpan: 1, rowSpan: 1, id: '1', col: 0, row: 0 },
+    { colSpan: 2, rowSpan: 1, id: '1', col: 1, row: 0 },
+  ]);
+});
+
+test('add three element', () => {
+  const tile = new TileLayout(6);
+  tile.addTile({ colSpan: 1, rowSpan: 1, id: '1' });
+  tile.addTile({ colSpan: 2, rowSpan: 1, id: '1' });
+  tile.addTile({ colSpan: 2, rowSpan: 1, id: '1' });
+  expect(tile.tileData()).toEqual([
+    { colSpan: 1, rowSpan: 1, id: '1', col: 0, row: 0 },
+    { colSpan: 2, rowSpan: 1, id: '1', col: 1, row: 0 },
+    { colSpan: 2, rowSpan: 1, id: '1', col: 3, row: 0 },
+  ]);
+});
+test('add three element, one overflows', () => {
+  const tile = new TileLayout(6);
+  tile.addTile({ colSpan: 1, rowSpan: 1, id: '1' });
+  tile.addTile({ colSpan: 2, rowSpan: 1, id: '1' });
+  tile.addTile({ colSpan: 5, rowSpan: 1, id: '1' });
+  expect(tile.tileData()).toEqual([
+    { colSpan: 1, rowSpan: 1, id: '1', col: 0, row: 0 },
+    { colSpan: 2, rowSpan: 1, id: '1', col: 1, row: 0 },
+    { colSpan: 5, rowSpan: 1, id: '1', col: 0, row: 1 },
+  ]);
+});
+
+test('add 5 element, one on multiple rows', () => {
+  const tile = new TileLayout(6);
+  tile.addTile({ colSpan: 1, rowSpan: 1, id: '1' });
+  tile.addTile({ colSpan: 1, rowSpan: 1, id: '2' });
+  tile.addTile({ colSpan: 2, rowSpan: 2, id: '3' });
+  tile.addTile({ colSpan: 1, rowSpan: 1, id: '4' });
+  tile.addTile({ colSpan: 2, rowSpan: 2, id: '5' });
+  expect(tile.tileData()).toEqual([
+    { colSpan: 1, rowSpan: 1, id: '1', col: 0, row: 0 },
+    { colSpan: 1, rowSpan: 1, id: '2', col: 1, row: 0 },
+    { colSpan: 2, rowSpan: 2, id: '3', col: 2, row: 0 },
+    { colSpan: 1, rowSpan: 1, id: '4', col: 4, row: 0 },
+    { colSpan: 2, rowSpan: 2, id: '5', col: 0, row: 1 },
+  ]);
+});
+
+test('move tile up', () => {
+  const tile = new TileLayout(4);
+  tile.addTile({ colSpan: 1, rowSpan: 1, id: '1' });
+  tile.addTile({ colSpan: 2, rowSpan: 2, id: '2' });
+  tile.addTile({ colSpan: 1, rowSpan: 1, id: '3' });
+  tile.addTile({ colSpan: 2, rowSpan: 2, id: '4' });
+  expect(tile.tileData()).toEqual([
+    { colSpan: 1, rowSpan: 1, id: '1', col: 0, row: 0 },
+    { colSpan: 2, rowSpan: 2, id: '2', col: 1, row: 0 },
+    { colSpan: 1, rowSpan: 1, id: '3', col: 3, row: 0 },
+    { colSpan: 2, rowSpan: 2, id: '4', col: 0, row: 2 },
+  ]);
+
+  tile.moveTile('4', 0, 1);
+
+  expect(tile.tileData()).toEqual([
+    { colSpan: 1, rowSpan: 1, id: '1', col: 0, row: 0 },
+    { colSpan: 2, rowSpan: 2, id: '4', col: 1, row: 0 },
+    { colSpan: 2, rowSpan: 2, id: '2', col: 0, row: 2 },
+    { colSpan: 1, rowSpan: 1, id: '3', col: 3, row: 0 },
+  ]);
+});
+
+test('move out of bounds', () => {
+  const tile = new TileLayout(4);
+  tile.addTile({ colSpan: 1, rowSpan: 1, id: '1' });
+  tile.addTile({ colSpan: 1, rowSpan: 1, id: '2' });
+  expect(tile.moveTile('2', 4, 0)).toBeNull();
+  expect(tile.moveTile('2', -1, -0)).toBeNull();
+  expect(tile.moveTile('2', 0, 4)).toBeNull();
+  expect(tile.moveTile('2', 0, -1)).toBeNull();
+});

@@ -1,0 +1,14 @@
+{
+  "ignorePatterns": ["node_modules/**", "src/**.scss"],
+  "extends": ["react-app", "plugin:postcss-modules/recommended"],
+  "overrides": [
+    {
+      "files": ["**/*.scss", "**/*.css"],
+      "rules": { "import/no-anonymous-default-export": "off" }
+    },
+    {
+      "files": ["**/*.svg"],
+      "rules": { "no-func-assign": "off", "import/first": "off" }
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+.container {
+    position: relative;
+    width: 100%;
+}
+
+.tile {
+    touch-action: none;
+    transition: all ease-in-out 300ms;
+    position: absolute;
+    display: flex;
+    align-items: stretch;
+    opacity: 1;
+    z-index: 0;
+}
+
+.tile:hover {
+    z-index: 1;
+}
+
+.tile.dragging {
+    transition: none;
+    user-select: none;
+    z-index: 1;
+}
