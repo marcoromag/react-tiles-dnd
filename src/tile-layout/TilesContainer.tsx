@@ -11,14 +11,14 @@ export interface TilesContainerBaseProps<T> {
   /**
    * width/height ration
    */
+  data: T[];
+  renderTile: RenderTileFunction<T>;
   ratio?: number;
   forceTileHeight?: number;
-  data: T[];
   acceptsDrop?: (source: T, target: T) => boolean;
   onTileDrop?: (source: T, target: T) => boolean;
-  tileSize: (data: T) => { rowSpan: number; colSpan: number };
-  extractId: (data: T) => string;
-  renderTile: RenderTileFunction<T>;
+  tileSize?: (data: T) => { rowSpan: number; colSpan: number };
+
   onReorderTiles?: (reorderedData: T[]) => void;
   activeBorderSize?: number;
 }
@@ -53,6 +53,24 @@ export type TilesContainerProps<T> =
   | TilesContainerColsProps<T>
   | TilesContainerForcedSizeProps<T>;
 
+const defaultTileSize = () => ({ rowSpan: 1, colSpan: 1 });
+
+type DataWithKeys<T> = {
+  item: T;
+  key: number;
+};
+
+let lastKey = 0;
+const dataWithKeys = <T,>(
+  data: T[],
+  dataWithKeys: DataWithKeys<T>[]
+): DataWithKeys<T>[] => {
+  return data.map(item => {
+    const existingItem = dataWithKeys.find(k => k.item === item);
+    return existingItem || { item, key: lastKey++ };
+  });
+};
+
 export const TilesContainer = <T,>(props: TilesContainerProps<T>) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [measureRef, measure] = useMeasure<HTMLDivElement>();
@@ -72,23 +90,28 @@ export const TilesContainer = <T,>(props: TilesContainerProps<T>) => {
     data: propsData,
     acceptsDrop,
     onTileDrop,
-    tileSize,
+    tileSize = defaultTileSize,
     renderTile,
-    extractId,
     activeBorderSize = 24,
   } = props;
 
   const tileWidth = forceTileWidth || measure.width / columns;
   const tileHeight = forceTileHeight || tileWidth / ratio;
 
-  const [data, setData] = useState<T[]>(propsData);
-  useEffect(() => setData(propsData), [propsData, setData]);
+  const [data, setData] = useState<DataWithKeys<T>[]>(() =>
+    dataWithKeys(propsData, [])
+  );
+  useEffect(
+    () => setData(curr => dataWithKeys(propsData, curr)),
+    [propsData, setData]
+  );
 
   //extract the tiles from the props
   const propsTiles = useMemo(() => {
     const tiles: TileInfo<T>[] = [];
-    data.forEach(tile =>
+    data.forEach(({ item: tile, key }) =>
       tiles.push({
+        key,
         ...tileSize(tile),
         data: tile,
       })
@@ -105,26 +128,25 @@ export const TilesContainer = <T,>(props: TilesContainerProps<T>) => {
     canAcceptDrop: (source, target) => {
       return acceptsDrop ? acceptsDrop(source.data, target.data) : false;
     },
-    extractId,
     changeTilesOrder: tiles => {
       const newData = tiles.map(tile => tile.data);
       if (!isEqual(data, newData)) {
-        setData(newData);
+        setData(curr => dataWithKeys(newData, curr));
         onReorderTiles && onReorderTiles(newData);
       }
     },
     didDrop: (source, target) => {
-      setData(tiles => tiles.filter(tile => tile !== source.data));
+      setData(tiles => tiles.filter(tile => tile.item !== source.data));
       onTileDrop && onTileDrop(source.data, target.data);
     },
   });
 
   const tiles = useMemo(
     () =>
-      renderTileProps.map(({ x, y, ...props }) => (
+      renderTileProps.map(({ x, y, key, ...props }) => (
         <div
           className={jc(styles.tile, props.isDragging && styles.dragging)}
-          key={props.id}
+          key={`K-${key}`}
           style={{
             top: `${y}px`,
             left: `${x}px`,

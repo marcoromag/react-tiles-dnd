@@ -26,7 +26,6 @@ const render: RenderTileFunction<typeof tiles[0]> = ({ data, isDragging }) => (
     </div>
   </div>
 );
-const extractId = (tile: typeof tiles[0]) => `key of ${tile.text}`;
 const tileSize = (tile: typeof tiles[0]) => ({
   colSpan: tile.cols,
   rowSpan: tile.rows,
@@ -37,7 +36,6 @@ const MainStory: ComponentStory<typeof TilesContainer> = function (props) {
     <TilesContainer
       {...props}
       data={tiles}
-      extractId={extractId}
       renderTile={render}
       tileSize={tileSize}
     ></TilesContainer>

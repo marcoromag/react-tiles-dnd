@@ -1,6 +1,5 @@
 export interface RenderTileProps<T> {
   data: T;
-  id: string;
   row: number;
   col: number;
   rowSpan: number;

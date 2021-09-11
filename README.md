@@ -58,14 +58,6 @@ data: T[];
 
 Together with data, TilesContainer needs a couple of helper functions to understand what shall be rendered for each element of the data array:
 
-The first function is mandatory and is the property
-
-```
-extractId: (data: T) => string
-```
-
-This function shall extract a unique string for each data element. It is used internally to compare elements (note: this might change in the future with a proper comparison function)
-
 ```
   tileSize?: (data: T) => { rowSpan: number; colSpan: number };
 ```
@@ -95,3 +87,33 @@ This function is called when a target tile is a valid target (acceptDrop returne
 ```
 
 The rendering function, called every time a re-render is needed.
+
+## Tile rendering
+
+TilesContainer invokes the rendering function whenever there are relevant tile changes during the drag-n-drop operation.
+
+- whenever a tile starts to drag
+- whenever a tile is identified as a drop target
+- whenever a tile drag is over
+
+The properties contain the data of the tile, its current position, size, and the flags `isDragging`, `isDropTarget`, `isDroppable`
+
+```
+export interface RenderTileProps<T> {
+  data: T;
+  id: string;
+  row: number;
+  col: number;
+  rowSpan: number;
+  colSpan: number;
+  tileWidth: number;
+  tileHeight: number;
+  isDragging: boolean;
+  isDropTarget: boolean;
+  isDroppable: boolean;
+}
+
+export type RenderTileFunction<T> = (
+  props: RenderTileProps<T>
+) => React.ReactElement | null;
+```

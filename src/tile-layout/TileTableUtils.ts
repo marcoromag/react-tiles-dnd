@@ -5,6 +5,7 @@ import { RenderTileProps } from './RenderTileProps';
 export type TileInfo<T> = {
   rowSpan: number;
   colSpan: number;
+  key: number;
   data: T;
 };
 
@@ -27,7 +28,6 @@ interface TileTableDNDProps<T> {
   ) => boolean;
   didDrop: (draggingTile: TileInfo<T>, targetTile: TileInfo<T>) => void;
   changeTilesOrder: (tiles: TileInfo<T>[]) => void;
-  extractId: (data: T) => string;
 }
 
 export const useTileTable = <T>({
@@ -38,7 +38,6 @@ export const useTileTable = <T>({
   currentTiles,
   canAcceptDrop,
   changeTilesOrder,
-  extractId,
   didDrop,
 }: TileTableDNDProps<T>) => {
   //the tiles currently in use (could be different in case of dragging)
@@ -471,6 +470,7 @@ export const useTileTable = <T>({
     (RenderTileProps<T> & {
       x: number;
       y: number;
+      key: number;
     })[]
   >(
     () =>
@@ -478,7 +478,6 @@ export const useTileTable = <T>({
         .map(tile => {
           return {
             ...tile,
-            id: extractId(tile.data),
             tileWidth: elementWidth,
             tileHeight: elementHeight,
             isDragging: tile.data === state.draggingTile?.data,
@@ -497,8 +496,8 @@ export const useTileTable = <T>({
                 : tile.row * elementHeight,
           };
         })
-        .sort((a, b) => a.id.localeCompare(b.id)),
-    [state, positionedTiles, extractId, elementHeight, elementWidth]
+        .sort((a, b) => a.key - b.key),
+    [state, positionedTiles, elementHeight, elementWidth]
   );
 
   return {
