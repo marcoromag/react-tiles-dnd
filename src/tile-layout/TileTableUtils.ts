@@ -18,6 +18,7 @@ type TilesTable<T> = (TilePositionInfo<T> | null)[][];
 interface TileTableDNDProps<T> {
   elementWidth: number;
   elementHeight: number;
+  activeBorderSize: number;
   columns: number;
   currentTiles: TileInfo<T>[];
   canAcceptDrop: (
@@ -32,6 +33,7 @@ interface TileTableDNDProps<T> {
 export const useTileTable = <T>({
   elementWidth,
   elementHeight,
+  activeBorderSize,
   columns,
   currentTiles,
   canAcceptDrop,
@@ -159,23 +161,25 @@ export const useTileTable = <T>({
         y: absolutePosition.y - targetTile.row * elementHeight,
       };
 
-      if (draggingTile.col >= targetTile.col && position.x < 24) return 'left';
+      if (draggingTile.col >= targetTile.col && position.x < activeBorderSize)
+        return 'left';
       if (
         draggingTile.col <= targetTile.col &&
-        position.x > elementWidth * targetTile.colSpan - 24
+        position.x > elementWidth * targetTile.colSpan - activeBorderSize
       )
         return 'right';
       if (
         draggingTile.row <= targetTile.row &&
-        position.y > elementHeight * targetTile.rowSpan - 24
+        position.y > elementHeight * targetTile.rowSpan - activeBorderSize
       )
         return 'bottom';
-      if (draggingTile.row >= targetTile.row && position.y < 24) return 'top';
+      if (draggingTile.row >= targetTile.row && position.y < activeBorderSize)
+        return 'top';
       if (
-        position.x > 24 &&
-        position.y < elementWidth * targetTile.colSpan - 24 &&
-        position.y > 24 &&
-        position.y < elementHeight * targetTile.rowSpan - 24
+        position.x > activeBorderSize &&
+        position.y < elementWidth * targetTile.colSpan - activeBorderSize &&
+        position.y > activeBorderSize &&
+        position.y < elementHeight * targetTile.rowSpan - activeBorderSize
       )
         return 'center';
     };
@@ -206,7 +210,7 @@ export const useTileTable = <T>({
       tableToTilesList,
       tilesListToTable,
     };
-  }, [elementWidth, elementHeight, columns]);
+  }, [elementWidth, elementHeight, activeBorderSize, columns]);
 
   const [state, setState] = useState<{
     dragging: boolean;

@@ -20,6 +20,7 @@ export interface TilesContainerBaseProps<T> {
   extractId: (data: T) => string;
   renderTile: RenderTileFunction<T>;
   onReorderTiles?: (reorderedData: T[]) => void;
+  activeBorderSize?: number;
 }
 
 export interface TilesContainerColsProps<T> extends TilesContainerBaseProps<T> {
@@ -74,6 +75,7 @@ export const TilesContainer = <T,>(props: TilesContainerProps<T>) => {
     tileSize,
     renderTile,
     extractId,
+    activeBorderSize = 24,
   } = props;
 
   const tileWidth = forceTileWidth || measure.width / columns;
@@ -98,6 +100,7 @@ export const TilesContainer = <T,>(props: TilesContainerProps<T>) => {
     columns,
     elementHeight: tileHeight,
     elementWidth: tileWidth,
+    activeBorderSize,
     currentTiles: propsTiles,
     canAcceptDrop: (source, target) => {
       return acceptsDrop ? acceptsDrop(source.data, target.data) : false;

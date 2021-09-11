@@ -5,10 +5,6 @@
     {
       "files": ["**/*.scss", "**/*.css"],
       "rules": { "import/no-anonymous-default-export": "off" }
-    },
-    {
-      "files": ["**/*.svg"],
-      "rules": { "no-func-assign": "off", "import/first": "off" }
     }
   ]
 }

@@ -1,7 +1,7 @@
 import React from 'react';
 import { ComponentMeta, ComponentStory } from '@storybook/react';
-import { TilesContainer } from './TilesContainer';
-import { RenderTileFunction } from './RenderTileProps';
+import { TilesContainer } from '../src/tile-layout/TilesContainer';
+import { RenderTileFunction } from '../src/tile-layout/RenderTileProps';
 
 const config: ComponentMeta<typeof TilesContainer> = {
   title: 'Components/TilesContainer',

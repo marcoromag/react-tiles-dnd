@@ -17,5 +17,6 @@
     "strict": true,
     "target": "es5",
     "types": ["node", "jest"]
-  }
+  },
+  "exclude": ["./stories","./esm"]
 }

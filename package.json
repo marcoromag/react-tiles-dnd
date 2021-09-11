@@ -1,126 +1,119 @@
 {
-    "name": "react-tiles-dnd",
-    "version": "0.0.1-1",
-    "author": "Marco Romagnuolo",
-    "license": "MIT",
-    "repository": "marcoromag/react-tiles-dnd",
-    "main": "esm/index.js",
-    "module": "esm/index.js",
-    "source": "src/index.ts",
-    "typings": "esm/types/index.d.ts",
-    "files": [
-        "esm/**",
-        "src/**"
+  "name": "react-tiles-dnd",
+  "version": "0.0.1-1",
+  "author": "Marco Romagnuolo",
+  "license": "MIT",
+  "repository": "marcoromag/react-tiles-dnd",
+  "main": "esm/index.js",
+  "module": "esm/index.js",
+  "source": "src/index.ts",
+  "typings": "esm/types/index.d.ts",
+  "files": [
+    "esm/**",
+    "src/**"
+  ],
+  "scripts": {
+    "build": "NODE_ENV=production rollup -c",
+    "start": "rollup -c -w",
+    "test": "jest",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
     ],
-    "scripts": {
-        "build": "NODE_ENV=production rollup -c",
-        "start": "rollup -c -w",
-        "test": "jest",
-        "storybook": "start-storybook -p 6006",
-        "build-storybook": "build-storybook"
-    },
-    "eslintConfig": {
-        "extends": [
-            "react-app",
-            "react-app/jest"
-        ]
-    },
-    "browserslist": {
-        "production": [
-            ">0.2%",
-            "not dead",
-            "not op_mini all"
-        ],
-        "development": [
-            ">0.2%",
-            "last 1 chrome version",
-            "last 1 firefox version",
-            "last 1 safari version"
-        ]
-    },
-    "devDependencies": {
-        "@babel/cli": "^7.13.10",
-        "@babel/core": "^7.13.10",
-        "@babel/plugin-syntax-flow": "^7.14.5",
-        "@babel/plugin-transform-runtime": "^7.14.5",
-        "@babel/preset-env": "^7.13.10",
-        "@babel/preset-flow": "^7.14.5",
-        "@babel/preset-react": "^7.12.13",
-        "@babel/preset-typescript": "^7.15.0",
-        "@rollup/plugin-babel": "^5.3.0",
-        "@rollup/plugin-eslint": "^8.0.1",
-        "@rollup/plugin-node-resolve": "^13.0.2",
-        "@rollup/plugin-typescript": "^8.2.0",
-        "@storybook/addon-actions": "^6.3.6",
-        "@storybook/addon-essentials": "^6.3.6",
-        "@storybook/addon-links": "^6.3.6",
-        "@storybook/react": "^6.3.6",
-        "@types/jest": "^26.0.24",
-        "@types/lodash-es": "^4.17.4",
-        "@types/react": "^17.0.3",
-        "@types/react-dom": "^17.0.3",
-        "@typescript-eslint/eslint-plugin": "^4.18.0",
-        "@typescript-eslint/parser": "^4.18.0",
-        "autoprefixer": "^10.0.0",
-        "babel-eslint": "^10.1.0",
-        "babel-loader": "^8.2.2",
-        "cssnano": "^4.1.11",
-        "eslint": "^7.22.0",
-        "eslint-config-react-app": "^6.0.0",
-        "eslint-plugin-flowtype": "^5.4.0",
-        "eslint-plugin-import": "^2.22.1",
-        "eslint-plugin-jsx-a11y": "^6.4.1",
-        "eslint-plugin-postcss-modules": "^1.2.1",
-        "eslint-plugin-react": "^7.22.0",
-        "eslint-plugin-react-hooks": "^4.2.0",
-        "husky": "^4.3.8",
-        "jest": "^27.0.6",
-        "lint-staged": "^10.5.1",
-        "postcss": "^8.2.13",
-        "prettier": "^2.1.2",
-        "rollup": "^2.41.4",
-        "rollup-plugin-eslint": "^7.0.0",
-        "rollup-plugin-exclude-dependencies-from-bundle": "^1.1.20",
-        "rollup-plugin-peer-deps-external": "^2.2.4",
-        "rollup-plugin-postcss": "^4.0.0",
-        "rollup-plugin-postcss-modules": "^2.0.2",
-        "rollup-plugin-sourcemaps": "^0.6.3",
-        "rollup-plugin-terser": "^7.0.2",
-        "storybook-css-modules-preset": "^1.1.1",
-        "ts-jest": "^27.0.3",
-        "typescript": "^4.2.3",
-        "yargs": "^16.2.0"
-    },
-    "peerDependencies": {
-        "@reduxjs/toolkit": ">=1.6.0",
-        "formik": ">=2.2.9",
-        "react": ">=17.0.2",
-        "react-dom": ">=17.0.2",
-        "react-helmet": ">=6.1.0",
-        "react-redux": ">=7.2.4",
-        "react-router": "^5.2.0",
-        "react-router-dom": "^5.2.0",
-        "redux": ">=4.1.0",
-        "reselect": ">=4.0.0",
-        "tslib": ">=2.3.0"
-    },
-    "lint-staged": {
-        "src/**/*.{js,jsx,ts,tsx,json,css,scss,md}": [
-            "prettier --write"
-        ],
-        "package.json": [
-            "prettier --write"
-        ]
-    },
-    "husky": {
-        "hooks": {
-            "pre-commit": "lint-staged"
-        }
-    },
-    "dependencies": {
-        "@babel/runtime": "^7.14.8",
-        "lodash-es": "^4.17.21",
-        "react-use": "^17.2.4",
-        "react-use-gesture": "^9.1.3"
+    "development": [
+      ">0.2%",
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.13.10",
+    "@babel/core": "^7.13.10",
+    "@babel/plugin-syntax-flow": "^7.14.5",
+    "@babel/plugin-transform-runtime": "^7.14.5",
+    "@babel/preset-env": "^7.13.10",
+    "@babel/preset-flow": "^7.14.5",
+    "@babel/preset-react": "^7.12.13",
+    "@babel/preset-typescript": "^7.15.0",
+    "@rollup/plugin-babel": "^5.3.0",
+    "@rollup/plugin-eslint": "^8.0.1",
+    "@rollup/plugin-node-resolve": "^13.0.2",
+    "@rollup/plugin-typescript": "^8.2.0",
+    "@storybook/addon-actions": "^6.3.6",
+    "@storybook/addon-essentials": "^6.3.6",
+    "@storybook/addon-links": "^6.3.6",
+    "@storybook/react": "^6.3.6",
+    "@types/jest": "^26.0.24",
+    "@types/lodash-es": "^4.17.4",
+    "@types/react": "^17.0.3",
+    "@types/react-dom": "^17.0.3",
+    "@typescript-eslint/eslint-plugin": "^4.18.0",
+    "@typescript-eslint/parser": "^4.18.0",
+    "autoprefixer": "^10.0.0",
+    "babel-eslint": "^10.1.0",
+    "babel-loader": "^8.2.2",
+    "cssnano": "^4.1.11",
+    "eslint": "^7.22.0",
+    "eslint-config-react-app": "^6.0.0",
+    "eslint-plugin-flowtype": "^5.4.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-jsx-a11y": "^6.4.1",
+    "eslint-plugin-postcss-modules": "^1.2.1",
+    "eslint-plugin-react": "^7.22.0",
+    "eslint-plugin-react-hooks": "^4.2.0",
+    "husky": "^4.3.8",
+    "jest": "^27.0.6",
+    "lint-staged": "^10.5.1",
+    "postcss": "^8.2.13",
+    "prettier": "^2.1.2",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "rollup": "^2.41.4",
+    "rollup-plugin-eslint": "^7.0.0",
+    "rollup-plugin-exclude-dependencies-from-bundle": "^1.1.20",
+    "rollup-plugin-peer-deps-external": "^2.2.4",
+    "rollup-plugin-postcss": "^4.0.0",
+    "rollup-plugin-postcss-modules": "^2.0.2",
+    "rollup-plugin-sourcemaps": "^0.6.3",
+    "rollup-plugin-terser": "^7.0.2",
+    "storybook-css-modules-preset": "^1.1.1",
+    "ts-jest": "^27.0.3",
+    "typescript": "^4.2.3",
+    "yargs": "^16.2.0"
+  },
+  "peerDependencies": {
+    "react": ">=17.0.2"
+  },
+  "lint-staged": {
+    "src/**/*.{js,jsx,ts,tsx,json,css,scss,md}": [
+      "prettier --write"
+    ],
+    "package.json": [
+      "prettier --write"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
     }
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.14.8",
+    "lodash-es": "^4.17.21",
+    "react-use": "^17.2.4",
+    "react-use-gesture": "^9.1.3",
+    "tslib": "^2.3.1"
+  }
 }
