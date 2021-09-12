@@ -18,7 +18,7 @@ export interface TilesContainerBaseProps<T> {
   acceptsDrop?: (source: T, target: T) => boolean;
   onTileDrop?: (source: T, target: T) => boolean;
   tileSize?: (data: T) => { rowSpan: number; colSpan: number };
-
+  disabled?: boolean;
   onReorderTiles?: (reorderedData: T[]) => void;
   activeBorderSize?: number;
 }
@@ -93,6 +93,7 @@ export const TilesContainer = <T,>(props: TilesContainerProps<T>) => {
     tileSize = defaultTileSize,
     renderTile,
     activeBorderSize = 24,
+    disabled,
   } = props;
 
   const tileWidth = forceTileWidth || measure.width / columns;
@@ -121,6 +122,7 @@ export const TilesContainer = <T,>(props: TilesContainerProps<T>) => {
 
   const { bind, renderTileProps, tableHeight } = useTileTable({
     columns,
+    enabled: !disabled,
     elementHeight: tileHeight,
     elementWidth: tileWidth,
     activeBorderSize,

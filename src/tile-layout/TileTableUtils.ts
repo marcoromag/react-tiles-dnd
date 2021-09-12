@@ -17,6 +17,7 @@ export type TilePositionInfo<T> = TileInfo<T> & {
 type TilesTable<T> = (TilePositionInfo<T> | null)[][];
 
 interface TileTableDNDProps<T> {
+  enabled: boolean;
   elementWidth: number;
   elementHeight: number;
   activeBorderSize: number;
@@ -31,6 +32,7 @@ interface TileTableDNDProps<T> {
 }
 
 export const useTileTable = <T>({
+  enabled,
   elementWidth,
   elementHeight,
   activeBorderSize,
@@ -463,7 +465,7 @@ export const useTileTable = <T>({
         });
       }
     },
-    { filterTaps: true }
+    { filterTaps: true, enabled }
   );
 
   const renderTileProps = useMemo<
@@ -472,15 +474,28 @@ export const useTileTable = <T>({
       y: number;
       key: number;
     })[]
-  >(
-    () =>
-      positionedTiles
+  >(() => {
+    if (!enabled) {
+      return positionedTiles
+        .map(tile => ({
+          ...tile,
+          tileWidth: elementWidth,
+          tileHeight: elementHeight,
+          isDragging: false,
+          isDropTarget: false,
+          isDroppable: false,
+          x: tile.col * elementWidth,
+          y: tile.row * elementHeight,
+        }))
+        .sort((a, b) => a.key - b.key);
+    } else
+      return positionedTiles
         .map(tile => {
           return {
             ...tile,
             tileWidth: elementWidth,
             tileHeight: elementHeight,
-            isDragging: tile.data === state.draggingTile?.data,
+            isDragging: enabled && tile.data === state.draggingTile?.data,
             isDropTarget: tile.data === state.dropTargetTile?.data,
             isDroppable:
               tile.data === state.draggingTile?.data && state.droppable,
@@ -496,9 +511,8 @@ export const useTileTable = <T>({
                 : tile.row * elementHeight,
           };
         })
-        .sort((a, b) => a.key - b.key),
-    [state, positionedTiles, elementHeight, elementWidth]
-  );
+        .sort((a, b) => a.key - b.key);
+  }, [state, positionedTiles, elementHeight, elementWidth, enabled]);
 
   return {
     table,
