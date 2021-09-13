@@ -152,6 +152,63 @@ export const useTileTable = <T>({
       return interceptTiles(table, 0, 0, rows, cols);
     };
 
+    const positionedTilesMaxRows = (positionedTiles: TilePositionInfo<T>[]) => {
+      //calculate the max row
+      return positionedTiles.reduce<number>((memo, tile) => {
+        const maxTileRow = tile.row + tile.rowSpan;
+        return memo > maxTileRow ? memo : maxTileRow;
+      }, 0);
+    };
+
+    /**
+     * Check if the elements are overlapping in the table
+     *
+     * @param positionedTiles
+     */
+    const checkOverlap = (positionedTiles: TilePositionInfo<T>[]) => {
+      //calculate the max row
+      const maxRows = positionedTilesMaxRows(positionedTiles);
+
+      //create a new temporary table to support the overlap check
+      const checkTable = new Array(maxRows)
+        .fill(null)
+        .map(_ => new Array(columns).fill(false));
+
+      const overlaps = positionedTiles.find(tile => {
+        for (let col = tile.col; col <= tile.col + tile.colSpan - 1; col++) {
+          for (let row = tile.row; row <= tile.row + tile.rowSpan - 1; row++) {
+            if (checkTable[row][col] === true) return true;
+            checkTable[row][col] = true;
+            return false;
+          }
+        }
+      });
+      console.log('CHECKOVERLAP', !!overlaps, checkTable, positionedTiles);
+      return !!overlaps;
+    };
+
+    const buildAllocatedSpaceTable = (
+      positionedTiles: TilePositionInfo<T>[]
+    ) => {
+      //calculate the max row
+      const maxRows = positionedTilesMaxRows(positionedTiles);
+
+      //create a new temporary table to support the overlap check
+      const checkTable = new Array(maxRows).fill(new Array(columns).fill(0));
+
+      const overlaps = positionedTiles.forEach(tile => {
+        for (let col = tile.col; col <= tile.col + tile.colSpan - 1; col++) {
+          for (let row = tile.row; row <= tile.row + tile.rowSpan - 1; row++) {
+            if (checkTable[row][col] === true) return true;
+            checkTable[row][col] = true;
+            return false;
+          }
+        }
+      });
+      console.log('CHECKOVERLAP', !!overlaps, checkTable, positionedTiles);
+      return !!overlaps;
+    };
+
     const getTileTouchPoint = (
       draggingTile: TilePositionInfo<T>,
       targetTile: TilePositionInfo<T>,
@@ -203,6 +260,7 @@ export const useTileTable = <T>({
     };
 
     return {
+      checkOverlap,
       pointToLocation,
       tableSize,
       getTileTouchPoint,
@@ -236,7 +294,7 @@ export const useTileTable = <T>({
   //the tile layout table
   const { tiles: draggingTiles, dragging } = state;
 
-  const effectiveTiles = (dragging && draggingTiles) || currentTiles;
+  const effectiveTiles = (enabled && dragging && draggingTiles) || currentTiles;
 
   const table = useMemo(
     () => utils.tilesListToTable(effectiveTiles),
@@ -248,6 +306,12 @@ export const useTileTable = <T>({
     [table, utils]
   );
 
+  /**
+   * Calculates the new table configuration while the tiles are moving
+   * @param offsetX
+   * @param offsetY
+   * @returns
+   */
   const dragMove = (
     offsetX: number,
     offsetY: number
@@ -286,6 +350,8 @@ export const useTileTable = <T>({
       });
       if (!touchPoint) return;
 
+      console.log('HIT TOUCHPOINT', { table, tiles });
+
       if (touchPoint === 'center') {
         if (touchedTile === dropTargetTile)
           return {
@@ -297,8 +363,7 @@ export const useTileTable = <T>({
         return;
       }
 
-      //a touchpoint has been identified: now we need to check that all the elements hovered by the new element
-      //are fully contained by the drag element
+      //a touchpoint has been identified
 
       const rowDisplacement = Math.floor(dragPosition.y / elementHeight);
       const colDisplacement = Math.floor(dragPosition.x / elementWidth);
@@ -352,26 +417,8 @@ export const useTileTable = <T>({
         return;
       }
 
-      //console.log('hover tiles:', hoverTiles);
+      console.log('hover tiles:', hoverTiles);
 
-      const allFullyContained = hoverTiles.reduce(
-        (memo, tile) =>
-          memo &&
-          tile.col >= newDragTileLocation.col &&
-          tile.row >= newDragTileLocation.row &&
-          tile.row + tile.rowSpan <=
-            newDragTileLocation.row + draggingTile.rowSpan &&
-          tile.col + tile.colSpan <=
-            newDragTileLocation.col + draggingTile.colSpan,
-        true
-      );
-      //console.log('allFullyContained:', allFullyContained);
-
-      if (!allFullyContained) return;
-
-      //now that all hovered cells are granted to be fully contained, we need to move the cells around.
-      //To do this we calculate the colSkew as the difference between the starting column of the drag operation
-      // and the farther border of the new position. We do the same for the row
       //FIXME: skewing still has some issues, which need to be understood...
       const colSkew =
         draggingTile.col < newDragTileLocation.col
@@ -385,7 +432,7 @@ export const useTileTable = <T>({
             (draggingTile.colSpan - 1) -
             draggingTile.row
           : newDragTileLocation.row - draggingTile.row;
-      //console.log('skew:', { colSkew, rowSkew });
+      console.log('skew:', { colSkew, rowSkew });
 
       //move the elements
       const modifiedTiles = hoverTiles.map(tile => ({
@@ -393,6 +440,7 @@ export const useTileTable = <T>({
         col: tile.col - colSkew,
         row: tile.row - rowSkew,
       }));
+      console.log('modifiedTiles:', { modifiedTiles });
       const otherTiles = tiles.filter(
         tile =>
           tile.data !== draggingTile.data &&
@@ -409,11 +457,14 @@ export const useTileTable = <T>({
         ...otherTiles,
         newDraggingTile,
       ].sort((a, b) => a.col + a.row * columns - (b.col + b.row * columns));
-
-      return {
-        draggingTile: newDraggingTile,
-        tiles: reorderedTiles,
-      };
+      console.log('reorderedTiles:', { reorderedTiles: [...reorderedTiles] });
+      //check if the move is possible
+      if (!utils.checkOverlap(reorderedTiles)) {
+        return {
+          draggingTile: newDraggingTile,
+          tiles: reorderedTiles,
+        };
+      }
     }
   };
 

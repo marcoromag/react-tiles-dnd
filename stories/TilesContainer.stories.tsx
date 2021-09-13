@@ -17,6 +17,7 @@ const tiles = [
   { text: 'Tile 6', cols: 1, rows: 1 },
   { text: 'Tile 7', cols: 1, rows: 1 },
   { text: 'Tile 8', cols: 1, rows: 1 },
+  { text: 'Tile 9', cols: 2, rows: 1 },
 ];
 
 const render: RenderTileFunction<typeof tiles[0]> = ({ data, isDragging }) => (
