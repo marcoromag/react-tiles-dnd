@@ -1,11 +1,11 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { TileInfo, useTileTable } from './TileTableUtils';
+import { useTileTable } from './useTileTable';
 import { useMeasure } from 'react-use';
 import styles from './TilesContainer.module.css';
 import { useComposeRef } from '../utils/useComposedRef';
-import { RenderTileFunction, RenderTileProps } from './RenderTileProps';
 import { jc } from '../utils/joinclasses';
 import { isEqual } from 'lodash-es';
+import { TileInfo, RenderTileFunction, RenderTileProps } from './model';
 
 export interface TilesContainerBaseProps<T> {
   /**

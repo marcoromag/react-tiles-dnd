@@ -1,2 +1,2 @@
 export * from './TilesContainer';
-export * from './RenderTileProps';
+export * from './model';
