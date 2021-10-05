@@ -9,8 +9,7 @@
   "source": "src/index.ts",
   "typings": "esm/types/index.d.ts",
   "files": [
-    "esm/**",
-    "src/**"
+    "esm/**"
   ],
   "scripts": {
     "build": "NODE_ENV=production rollup -c",

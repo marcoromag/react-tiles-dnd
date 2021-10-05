@@ -1,0 +1,38 @@
+suite:
+  - name: Shall not move
+    grid: 4x4
+    cell:
+      height: 100
+      width: 100
+    start: >
+      1122-
+      1122-
+      -----
+      -----
+    action:
+      - click: 30,40
+      - move: 310,40
+    end: >
+      1122-
+      1122-
+      -----
+      -----
+
+  - name: Move right
+    grid: 4x4
+    cell:
+      height: 100
+      width: 100
+    start: >
+      1122-
+      1122-
+      -----
+      -----
+    action:
+      - click: 30,10
+      - move: 380,10
+    end: >
+      2211-
+      2211-
+      -----
+      -----
