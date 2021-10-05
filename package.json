@@ -1,6 +1,6 @@
 {
   "name": "react-tiles-dnd",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "author": "Marco Romagnuolo",
   "license": "MIT",
   "repository": "marcoromag/react-tiles-dnd",
@@ -111,9 +111,9 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.14.8",
+    "@use-gesture/react": "^10.0.2",
     "lodash-es": "^4.17.21",
     "react-use": "^17.2.4",
-    "react-use-gesture": "^9.1.3",
     "tslib": "^2.3.1"
   }
 }

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useDrag } from 'react-use-gesture';
+import { useDrag } from '@use-gesture/react';
 import {
   GridConfig,
   TileInfo,
