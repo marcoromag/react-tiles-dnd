@@ -132,7 +132,8 @@ export const TilesContainer = <T,>(props: TilesContainerProps<T>) => {
     },
     changeTilesOrder: tiles => {
       const newData = tiles.map(tile => tile.data);
-      if (!isEqual(data, newData)) {
+      const actualData = data.map(tile => tile.item);
+      if (!isEqual(actualData, newData)) {
         setData(curr => dataWithKeys(newData, curr));
         onReorderTiles && onReorderTiles(newData);
       }
