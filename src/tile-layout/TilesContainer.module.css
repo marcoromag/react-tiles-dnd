@@ -21,3 +21,10 @@
   user-select: none;
   z-index: 1;
 }
+
+.indicator {
+  position: absolute;
+  display: flex;
+  align-items: stretch;
+  z-index: 0;
+}

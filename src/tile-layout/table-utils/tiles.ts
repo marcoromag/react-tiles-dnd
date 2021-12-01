@@ -80,3 +80,15 @@ export const getTileTouchPoint = <T>(
   )
     return 'center';
 };
+
+export const tileIncludes = <T>(
+  tile: TilePositionInfo<T>,
+  point: { col: number; row: number; height: number }
+) => {
+  return (
+    tile.col >= point.col &&
+    point.col < tile.col + tile.colSpan &&
+    tile.row >= point.row &&
+    point.row < tile.row + tile.rowSpan
+  );
+};

@@ -7,9 +7,13 @@ import {
   RenderTileProps,
 } from './model';
 import * as TilesTableUtils from './table-utils/tiles-table';
-import * as TableUtils from './table-utils/table';
-import * as TilesUtils from './table-utils/tiles';
+import moveStrategy from './strategies/move';
+import reorderStrategy from './strategies/reorder';
+import { DragState } from './model';
+import { reduceRight } from 'lodash';
+
 interface TileTableDNDProps<T> {
+  strategy: 'reorder' | 'move';
   enabled: boolean;
   elementWidth: number;
   elementHeight: number;
@@ -26,6 +30,7 @@ interface TileTableDNDProps<T> {
 
 export const useTileTable = <T>({
   enabled,
+  strategy,
   elementWidth,
   elementHeight,
   activeBorderSize,
@@ -35,28 +40,14 @@ export const useTileTable = <T>({
   changeTilesOrder,
   didDrop,
 }: TileTableDNDProps<T>) => {
-  const [state, setState] = useState<{
-    dragging: boolean;
-    draggingTile?: TilePositionInfo<T>;
-    dropTargetTile?: TilePositionInfo<T>;
-    droppable: boolean;
-    tiles?: TilePositionInfo<T>[];
-    dragPosition?: {
-      x: number;
-      y: number;
-    };
-    offset?: {
-      x: number;
-      y: number;
-    };
-    start?: { col: number; row: number };
-  }>({
+  const strategyImpl = strategy === 'reorder' ? reorderStrategy : moveStrategy;
+  const [state, setState] = useState<DragState<T>>({
     dragging: false,
     droppable: false,
   });
 
   //the tile layout table
-  const { tiles: draggingTiles, dragging } = state;
+  const { tiles: draggingTiles, dragging, insertionPoint } = state;
 
   const effectiveTiles = (enabled && dragging && draggingTiles) || currentTiles;
 
@@ -75,194 +66,6 @@ export const useTileTable = <T>({
     elementWidth,
     activeBorderSize,
     columns,
-  };
-
-  /**
-   * Calculates the new table configuration while the tiles are moving
-   * @param offsetX
-   * @param offsetY
-   * @returns
-   */
-  const dragMove = (
-    offsetX: number,
-    offsetY: number
-  ): Partial<typeof state> | undefined => {
-    const {
-      draggingTile,
-      dragPosition,
-      dropTargetTile,
-      droppable,
-      start,
-      tiles,
-    } = state;
-
-    if (!draggingTile || !dragPosition || !start || !tiles) return;
-
-    const x = start.col * elementWidth + offsetX + dragPosition.x;
-    const y = start.row * elementHeight + offsetY + dragPosition.y;
-
-    //find the position of the tile in the grid
-    const cell = TableUtils.pointToLocation(table, x, y, config);
-    const tsize = TableUtils.tableSize(table);
-
-    //console.log('data:', { x, y, cell, start, draggingTile });
-
-    //try to see if we're touching a hot point
-    if (cell.col <= tsize.cols && cell.row <= tsize.rows) {
-      //find the touched tile within the move
-
-      const touchedTile = table[cell.row][cell.col];
-      if (!touchedTile || touchedTile.data === draggingTile.data) return;
-
-      //get the touchpoint of the touched tile
-      const touchPoint = TilesUtils.getTileTouchPoint(
-        draggingTile,
-        touchedTile,
-        {
-          x,
-          y,
-        },
-        config
-      );
-      if (!touchPoint) return;
-
-      //console.log('HIT TOUCHPOINT', { table, tiles });
-
-      if (touchPoint === 'center') {
-        if (touchedTile === dropTargetTile)
-          return {
-            dropTargetTile,
-            droppable,
-          };
-        if (canAcceptDrop(draggingTile, touchedTile))
-          return { dropTargetTile: touchedTile, droppable: true };
-        return;
-      }
-
-      //a touchpoint has been identified
-
-      const rowDisplacement = Math.floor(dragPosition.y / elementHeight);
-      const colDisplacement = Math.floor(dragPosition.x / elementWidth);
-
-      //calculate the new dragged tile location. This depends on the touched side.
-      const newDragTileLocation = TableUtils.trimLocation(
-        table,
-        touchPoint === 'right'
-          ? {
-              col: cell.col - (draggingTile.colSpan - 1),
-              row: cell.row - rowDisplacement,
-            }
-          : touchPoint === 'left'
-          ? {
-              col: cell.col,
-              row: cell.row - rowDisplacement,
-            }
-          : touchPoint === 'top'
-          ? {
-              col: cell.col - colDisplacement,
-              row: cell.row,
-            }
-          : /*touchPoint === 'bottom'*/ {
-              col: cell.col - colDisplacement,
-              row: cell.row - (draggingTile.rowSpan - 1),
-            }
-      );
-
-      /*
-      console.log(
-        'Effective location:',
-        newDragTileLocation,
-        touchedTile,
-        touchPoint,
-        state
-      );
-      */
-
-      //identify all hover tiles (excluding ourselves)
-      const hoverTiles = TilesTableUtils.interceptTiles(
-        table,
-        newDragTileLocation.row,
-        newDragTileLocation.col,
-        draggingTile.rowSpan,
-        draggingTile.colSpan
-      ).filter(tiles => tiles.data !== draggingTile.data);
-
-      if (!hoverTiles.length) {
-        return;
-      }
-
-      //console.log('hover tiles:', hoverTiles);
-
-      //create a table with the remaining tiles
-      const otherTiles = tiles.filter(
-        tile =>
-          tile.data !== draggingTile.data &&
-          !hoverTiles.find(t => t.data === tile.data)
-      );
-      const newDraggingTile = {
-        ...draggingTile,
-        ...newDragTileLocation,
-      };
-
-      let checkTable = TableUtils.newTable(
-        tsize.rows + draggingTile.rowSpan - 1,
-        tsize.cols,
-        0
-      );
-      otherTiles.forEach(tile => {
-        checkTable = TableUtils.placeInTable(tile, 1, checkTable);
-      });
-
-      /*
-      console.log('checktable dump:');
-      checkTable.forEach(row => {
-        console.log(row.join(''));
-      });
-      */
-
-      //try to fit the dragging tile in the current location
-      if (!TableUtils.fitsInTable(newDraggingTile, checkTable)) {
-        //console.log('new drag tile does not fit');
-        return;
-      }
-      checkTable = TableUtils.placeInTable(newDraggingTile, 1, checkTable);
-
-      /*
-      console.log('checktable dump with drag tile:');
-      checkTable.forEach(row => {
-        console.log(row.join(''));
-      });
-      */
-
-      const repositionedHoverTiles: TilePositionInfo<T>[] = [];
-      if (
-        hoverTiles.find(tile => {
-          const newPosition = TableUtils.findFirstFittingPosition(
-            tile,
-            checkTable
-          );
-          //console.log('fitting', { tile, newPosition });
-          if (!newPosition) return true;
-          const repositionedTile = { ...tile, ...newPosition };
-          repositionedHoverTiles.push(repositionedTile);
-          checkTable = TableUtils.placeInTable(repositionedTile, 1, checkTable);
-          return false;
-        })
-      ) {
-        //console.log('repositioning failed');
-        return;
-      }
-
-      const reorderedTiles = [
-        ...repositionedHoverTiles,
-        ...otherTiles,
-        newDraggingTile,
-      ].sort((a, b) => a.col + a.row * columns - (b.col + b.row * columns));
-      return {
-        draggingTile: newDraggingTile,
-        tiles: reorderedTiles,
-      };
-    }
   };
 
   const bind = useDrag<React.PointerEvent<HTMLDivElement>>(
@@ -291,12 +94,21 @@ export const useTileTable = <T>({
             start: { col: draggingTile.col, row: draggingTile.row },
           });
         } else {
-          const result = dragMove(movement[0], movement[1]) || {};
+          const result =
+            strategyImpl.onDragMove({
+              offsetX: movement[0],
+              offsetY: movement[1],
+              canAcceptDrop,
+              config,
+              state,
+              table,
+            }) || {};
           setState(state => ({
             ...state,
             offset: { x: movement[0], y: movement[1] },
             dropTargetTile: undefined,
             droppable: false,
+            insertionPoint: undefined,
             ...result,
           }));
         }
@@ -304,7 +116,17 @@ export const useTileTable = <T>({
         if (state.draggingTile && state.dropTargetTile && state.droppable) {
           didDrop(state.draggingTile, state.dropTargetTile);
         } else {
-          state.tiles && changeTilesOrder(state.tiles);
+          const result =
+            strategyImpl.onDragEnd({
+              offsetX: movement[0],
+              offsetY: movement[1],
+              canAcceptDrop,
+              config,
+              state,
+              table,
+            }) || {};
+          const finalState = { ...state, ...result };
+          finalState.tiles && changeTilesOrder(finalState.tiles);
         }
 
         setState({
@@ -332,6 +154,9 @@ export const useTileTable = <T>({
           isDragging: false,
           isDropTarget: false,
           isDroppable: false,
+          isDroppableAtInsertPosition: false,
+          insertAtLeft: false,
+          insertAtRight: false,
           x: tile.col * elementWidth,
           y: tile.row * elementHeight,
         }))
@@ -343,10 +168,15 @@ export const useTileTable = <T>({
             ...tile,
             tileWidth: elementWidth,
             tileHeight: elementHeight,
-            isDragging: enabled && tile.data === state.draggingTile?.data,
+            isDragging: tile.data === state.draggingTile?.data,
             isDropTarget: tile.data === state.dropTargetTile?.data,
+            insertAtLeft: tile.data === state.insertionPoint?.left?.data,
+            insertAtRight: tile.data === state.insertionPoint?.right?.data,
             isDroppable:
               tile.data === state.draggingTile?.data && state.droppable,
+            isDroppableAtInsertPosition: !!(
+              tile.data === state.draggingTile?.data && state.insertionPoint
+            ),
             x:
               tile.data === state.draggingTile?.data
                 ? (state.start?.col || 0) * elementWidth +
@@ -362,10 +192,25 @@ export const useTileTable = <T>({
         .sort((a, b) => a.key - b.key);
   }, [state, positionedTiles, elementHeight, elementWidth, enabled]);
 
+  const insertIndicatorPosition = useMemo(() => {
+    const { left, right } = insertionPoint || {};
+    if (left)
+      return {
+        x: (left.col + left.colSpan) * elementWidth,
+        y: left.row * elementHeight,
+      };
+    if (right)
+      return {
+        x: right.col * elementWidth,
+        y: right.row * elementHeight,
+      };
+  }, [insertionPoint, elementHeight, elementWidth]);
+
   return {
     table,
     tableHeight: table.length * elementHeight,
     tiles: positionedTiles,
+    insertIndicatorPosition,
     bind,
     renderTileProps,
   };

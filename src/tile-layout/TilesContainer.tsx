@@ -5,7 +5,12 @@ import styles from './TilesContainer.module.css';
 import { useComposeRef } from '../utils/useComposedRef';
 import { jc } from '../utils/joinclasses';
 import { isEqual } from 'lodash-es';
-import { TileInfo, RenderTileFunction, RenderTileProps } from './model';
+import {
+  TileInfo,
+  RenderTileFunction,
+  RenderInsertIndicatorFunction,
+  RenderTileProps,
+} from './model';
 
 export interface TilesContainerBaseProps<T> {
   /**
@@ -13,6 +18,7 @@ export interface TilesContainerBaseProps<T> {
    */
   data: T[];
   renderTile: RenderTileFunction<T>;
+  renderInsertIndicator?: RenderInsertIndicatorFunction;
   ratio?: number;
   forceTileHeight?: number;
   acceptsDrop?: (source: T, target: T) => boolean;
@@ -21,6 +27,7 @@ export interface TilesContainerBaseProps<T> {
   disabled?: boolean;
   onReorderTiles?: (reorderedData: T[]) => void;
   activeBorderSize?: number;
+  strategy?: 'reorder' | 'move';
 }
 
 export interface TilesContainerColsProps<T> extends TilesContainerBaseProps<T> {
@@ -92,8 +99,10 @@ export const TilesContainer = <T,>(props: TilesContainerProps<T>) => {
     onTileDrop,
     tileSize = defaultTileSize,
     renderTile,
+    renderInsertIndicator,
     activeBorderSize = 24,
     disabled,
+    strategy = 'move',
   } = props;
 
   const tileWidth = forceTileWidth || measure.width / columns;
@@ -120,29 +129,46 @@ export const TilesContainer = <T,>(props: TilesContainerProps<T>) => {
     return tiles;
   }, [data, tileSize]);
 
-  const { bind, renderTileProps, tableHeight } = useTileTable({
-    columns,
-    enabled: !disabled,
-    elementHeight: tileHeight,
-    elementWidth: tileWidth,
-    activeBorderSize,
-    currentTiles: propsTiles,
-    canAcceptDrop: (source, target) => {
-      return acceptsDrop ? acceptsDrop(source.data, target.data) : false;
-    },
-    changeTilesOrder: tiles => {
-      const newData = tiles.map(tile => tile.data);
-      const actualData = data.map(tile => tile.item);
-      if (!isEqual(actualData, newData)) {
-        setData(curr => dataWithKeys(newData, curr));
-        onReorderTiles && onReorderTiles(newData);
-      }
-    },
-    didDrop: (source, target) => {
-      setData(tiles => tiles.filter(tile => tile.item !== source.data));
-      onTileDrop && onTileDrop(source.data, target.data);
-    },
-  });
+  const { bind, renderTileProps, tableHeight, insertIndicatorPosition } =
+    useTileTable({
+      columns,
+      strategy,
+      enabled: !disabled,
+      elementHeight: tileHeight,
+      elementWidth: tileWidth,
+      activeBorderSize,
+      currentTiles: propsTiles,
+      canAcceptDrop: (source, target) => {
+        return acceptsDrop ? acceptsDrop(source.data, target.data) : false;
+      },
+      changeTilesOrder: tiles => {
+        const newData = tiles.map(tile => tile.data);
+        const actualData = data.map(tile => tile.item);
+        if (!isEqual(actualData, newData)) {
+          setData(curr => dataWithKeys(newData, curr));
+          onReorderTiles && onReorderTiles(newData);
+        }
+      },
+      didDrop: (source, target) => {
+        setData(tiles => tiles.filter(tile => tile.item !== source.data));
+        onTileDrop && onTileDrop(source.data, target.data);
+      },
+    });
+
+  const insertIndicator = useMemo(() => {
+    if (!insertIndicatorPosition || !renderInsertIndicator) {
+      return null;
+    }
+    const { x, y } = insertIndicatorPosition;
+    return (
+      <div
+        className={styles.indicator}
+        style={{ top: `${y}px`, left: `${x}px`, height: `${tileHeight}px` }}
+      >
+        {renderInsertIndicator()}
+      </div>
+    );
+  }, [insertIndicatorPosition, renderInsertIndicator, tileHeight]);
 
   const tiles = useMemo(
     () =>
@@ -170,6 +196,7 @@ export const TilesContainer = <T,>(props: TilesContainerProps<T>) => {
       ref={useComposeRef(containerRef, measureRef)}
       style={{ height: `${tableHeight}px`, minWidth: `${tileWidth}px` }}
     >
+      {insertIndicator}
       {tiles}
     </div>
   );
