@@ -192,6 +192,7 @@ export const useTileTable = <T>({
         .sort((a, b) => a.key - b.key);
   }, [state, positionedTiles, elementHeight, elementWidth, enabled]);
 
+  const { draggingTile } = state;
   const insertIndicatorPosition = useMemo(() => {
     const { left, right } = insertionPoint || {};
     if (left)
@@ -204,7 +205,12 @@ export const useTileTable = <T>({
         x: right.col * elementWidth,
         y: right.row * elementHeight,
       };
-  }, [insertionPoint, elementHeight, elementWidth]);
+    if (draggingTile)
+      return {
+        x: draggingTile.col * elementWidth,
+        y: draggingTile.row * elementHeight,
+      };
+  }, [insertionPoint, elementHeight, elementWidth, draggingTile]);
 
   return {
     table,

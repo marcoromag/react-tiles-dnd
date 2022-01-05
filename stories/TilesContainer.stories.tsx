@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { ComponentMeta, ComponentStory } from '@storybook/react';
 import { TilesContainer } from '../src/tile-layout/TilesContainer';
-import { RenderTileFunction } from '../src/tile-layout/model';
+import {
+  RenderInsertIndicatorFunction,
+  RenderTileFunction,
+} from '../src/tile-layout/model';
 import { transform } from 'lodash';
 
 const config: ComponentMeta<typeof TilesContainer> = {
@@ -54,6 +57,10 @@ const MainStory: ComponentStory<typeof TilesContainer> = function (props) {
       </div>
     </div>
   );
+
+  const renderInsertIndicator: RenderInsertIndicatorFunction = () => (
+    <div>here</div>
+  );
   return (
     <TilesContainer
       {...props}
@@ -62,6 +69,7 @@ const MainStory: ComponentStory<typeof TilesContainer> = function (props) {
       renderTile={render}
       tileSize={tileSize}
       activeBorderSize={50}
+      renderInsertIndicator={renderInsertIndicator}
     ></TilesContainer>
   );
 };

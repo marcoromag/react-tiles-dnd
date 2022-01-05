@@ -11,7 +11,7 @@ import * as TilesUtils from '../table-utils/tiles';
  */
 const reorder: StrategyInterface = {
   onDragMove: ({ offsetX, offsetY, config, state, table, canAcceptDrop }) => {
-    const { elementHeight, elementWidth, columns } = config;
+    const { elementHeight, elementWidth } = config;
     const {
       draggingTile,
       dragPosition,
