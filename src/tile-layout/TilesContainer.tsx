@@ -163,12 +163,17 @@ export const TilesContainer = <T,>(props: TilesContainerProps<T>) => {
     return (
       <div
         className={styles.indicator}
-        style={{ top: `${y}px`, left: `${x}px`, height: `${tileHeight}px` }}
+        style={{
+          top: `${y}px`,
+          left: `${x}px`,
+          height: `${tileHeight}px`,
+          width: `${tileWidth}px`,
+        }}
       >
         {renderInsertIndicator()}
       </div>
     );
-  }, [insertIndicatorPosition, renderInsertIndicator, tileHeight]);
+  }, [insertIndicatorPosition, renderInsertIndicator, tileHeight, tileWidth]);
 
   const tiles = useMemo(
     () =>
